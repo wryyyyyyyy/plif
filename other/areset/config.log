@@ -1,0 +1,31 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:562: checking for a BSD compatible install
+configure:615: checking whether build environment is sane
+configure:672: checking whether make sets ${MAKE}
+configure:718: checking for working aclocal
+configure:731: checking for working autoconf
+configure:744: checking for working automake
+configure:757: checking for working autoheader
+configure:770: checking for working makeinfo
+configure:788: checking for gcc
+configure:901: checking whether the C compiler (gcc  ) works
+configure:917: gcc -o conftest    conftest.c  -lnet 1>&5
+configure:943: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:948: checking whether we are using GNU C
+configure:976: checking whether gcc accepts -g
+configure:1009: checking for working const
+configure:1102: checking for a BSD compatible install
+configure:1155: checking whether make sets ${MAKE}
+configure:1186: checking for ln
+configure:1221: checking for libnet-config
+configure:1253: checking for a complete set of pcap headers
+configure:1288: checking for usable bpf.h
+configure:1313: checking how to run the C preprocessor
+configure:1393: checking for ANSI C header files
+configure:1500: checking for stdio.h
+configure:1500: checking for netinet/in.h
+configure:1500: checking for netinet/ip.h
+configure:1500: checking for netinet/tcp.h
+configure:1500: checking for pcap.h

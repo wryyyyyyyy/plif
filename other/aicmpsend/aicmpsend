@@ -1,0 +1,189 @@
+#!/usr/bin/perl
+
+# AICMPSEND v1.10
+# ~~~~~~~~~~~~~~~
+# Programmed by Anarchy (anarchy@elxsi.de)
+# AICMPSEND comes under the GPL. See file COPYING for more details.
+# You may distribute this program on your hp if you add a link to
+# my hp (www.elxsi.de).
+#
+# Greetings:
+# ----------
+# arbon for helping me with this program (and for future help...:))
+# cyberlord for allowing me to use his box as a target :)
+# wik for a lot of fun with a .fo server... ;)
+
+use Net::RawIP;
+use Getopt::Std;
+
+getopts('d:s:c:t:qD:xy:IAR:TP:EMSQX:', \%opt) || usage();
+
+$set=0;
+
+if(!defined($opt{'d'})) { $da=1; usage(); exit; } else { $daddr=$opt{'d'} }
+if(defined($opt{'s'})) { $saddr=$opt{'s'} } else { $saddr="127.0.0.1" }
+if($saddr eq "0") { $saddr_bit=1 }
+if(defined($opt{'c'})) { $count=$opt{'c'} } else { $count=1 }
+if($count==0) { $cset=0 }
+if(defined($opt{'t'})) { $ttl=$opt{'t'} } else { $ttl=64 }
+if(defined($opt{'q'})) { $quiet=1 } else { $quiet=0 }
+if(defined($opt{'D'})) { $type=3; $code=$opt{'D'}; $set++ }
+if(defined($opt{'I'})) { $type=15; $set++ }
+if(defined($opt{'A'})) { $type=9; $set++ }
+if(defined($opt{'R'})) { $type=5; $code=$opt{'R'}; $set++ }
+if(defined($opt{'T'})) { $type=13; $set++ }
+if(defined($opt{'P'})) { $type=12; $code=$opt{'P'}; $set++ }
+if(defined($opt{'E'})) { $type=8; $set++ }
+if(defined($opt{'M'})) { $type=17; $set++ }
+if(defined($opt{'S'})) { $type=10; $set++ }
+if(defined($opt{'Q'})) { $type=4; $set++ }
+if(defined($opt{'X'})) { $type=11; $code=$opt{'X'}; $set++ }
+if($type==3 && ($code<0||$code>5)) { $code_bit=1; $l="D"; usage() }
+if($type==5 && ($code<0||$code>3)) { $code_bit=1; $l="R"; usage() }
+if($type==12&& ($code<0||$code>2)) { $code_bit=1; $l="P"; usage() }
+if($type==11&& ($code<0||$code>1)) { $code_bit=1; $l="X"; usage() }
+if(defined($opt{'y'})) { $data=$opt{'y'} } else { $data="" }
+ 
+$set!=1 && usage();
+if(!defined($code)) { $code=0 }
+
+if(defined($opt{'x'}) and $quiet!=1) {
+$addrlist = ifaddrlist;
+print("\nNetwork devices:\n");
+print("----------------\n");
+map { print "$_ -> $addrlist->{$_}\n" } keys %$addrlist;
+print("\n");
+}
+
+$packet = new Net::RawIP ({icmp =>{}});
+$packet->set({ip =>  { saddr    => $saddr,
+                       daddr    => $daddr,
+                       ttl      => $ttl,
+                       protocol => 1,
+                       tos      => 0
+                     },
+             icmp => { type => $type,
+                       code => $code,
+		       data => $data
+		       }
+            });
+
+$ncount=1;
+if($count==0) { $count=1; $loop=1 } else { $loop=0 }
+
+while($count>0) {
+if($loop==0) { $count-- }
+if($saddr_bit==1) { randip(); $packet->set({ ip  => { saddr => $saddr } }) }
+if($quiet==0) {
+   print("ICMP packet:  $ncount   TTL=$ttl\n");
+   print("Sending ICMP error from $saddr to $daddr.\n");
+   print("Data: $data\n");
+   print("ICMP error:  ");
+          $type==3&&print("Destination Unreachable\n");
+          $type==15&&print("Information Request\n");
+          $type==9&&print("Router Advertisement\n");
+          $type==5&&print("Redirect\n");
+          $type==13&&print("Timestamp\n");
+          $type==12&&print("Parameter Problem\n");
+          $type==8&&print("Echo\n");
+          $type==17&&print("Address Mask\n");
+          $type==10&&print("Router\n");
+          $type==4&&print("Source\n");
+          $type==11&&print("Time\n");
+if($type==3) {
+   print("Code: $code  =>  ");
+ if($code==0) { print("Network unreachable\n") }
+ if($code==1) { print("Host unreachable\n") }
+ if($code==2) { print("Protocol unreachable\n") }
+ if($code==3) { print("Port unreachable\n") }
+ if($code==4) { print("Cannot fragment, \"Don't fragment bit\" set\n") }
+ if($code==5) { print("Source Router not reachable\n") }
+}
+if($type==5) {
+   print("Code: $code   =>   ");
+ if($code==0) { print("Redirect Datagram for the Network (or subnet)\n") }
+ if($code==1) { print("Redirect Datagram for the Host\n") }
+ if($code==2) { print("Redirect Datagram for the ToS and Network\n") }
+ if($code==3) { print("Redirect Datagram for the ToS and Host\n") }
+}
+if($type==12) {
+   print("Code: $code   =>   ");
+ if($code==0) { print("Pointer indicates the error\n") }
+ if($code==1) { print("Missing a Required Option\n") }
+ if($code==2) { print("Bad Length\n") }
+}
+if($type==11) {
+   print("Code: $code   =>   ");
+ if($code==0) { print("Time to Live exceeded in Transit\n") }
+ if($code==1) { print("Fragment Reassembly Time Exceeded\n") }
+}
+
+          print("\n");
+              }
+$ncount++;
+$packet->send();
+}
+
+
+sub usage() {
+    $0=~s#.*/##g;
+    print("\nAICMPSEND - Programmed by Anarchy\n");
+    print("=================================\n");
+    print("Usage  :  AICMPSEND -d <dest ip> [options]\n\n");
+    print("Options:\n");
+    print("========\n");
+    print("  -s  <source ip>                      (default=127.0.0.1)\n");
+    print("                                       (0 for random source ip)\n");
+    print("  -c  <number of ICMP errors to send>  (default=1)\n");
+    print("                                       (0=loop)\n");
+    print("  -t  <Time To Live (TTL)>             (default=32)\n");
+    print("  -y  <data>                           (default=\"\"\n");
+    print("  -q  quiet mode\n");
+    print("  -x  show network devices\n\n");
+    print("Flags  :\n");
+    print("========\n");
+    print("  -D <code> : Destination Unreachable    -E        : Echo ");
+    print("Request\n");
+    print("  -I        : Information Request        -M        : Address Mask ");
+    print("Request\n");
+    print("  -A        : Router Advertisement       -S        : Router ");
+    print("Selection\n");
+    print("  -R <code> : Redirect                   -Q        : Source ");
+    print("Quench\n");
+    print("  -T        : Timestamp                  -X <code> : Time ");
+    print("Exceeded\n");
+    print("  -P        : Parameter Problem\n\n");
+    print("Codes  :\n");
+    print("========\n");
+    print("  -D <code>    0 Network unreachable\n");
+    print("               1 Host unreachable\n");
+    print("               2 Protocol unreachable\n");
+    print("               3 Port unreachable\n");
+    print("               4 Cannot fragment, \"Don't fragment bit\" set\n");
+    print("               5 Source Router not reachable\n");
+    print("  -R <code>    0 Redirect Datagram for the Network (or subnet)\n");
+    print("               1 Redirect Datagram for the Host\n");
+    print("               2 Redirect Datagram for the ToS and Network\n");
+    print("               3 Redirect Datagram for the ToS an Host\n");
+    print("  -P <code>    0 Pointer indicates the error\n");
+    print("               1 Missing a Required Option\n");
+    print("               2 Bad Length\n");
+    print("  -X <code>    0 Time to Live exceeded in Transit\n");
+    print("               1 Fragment Reassembly Time Exceeded\n\n");
+$da==1&&print("Error: Need destination ip !!!\n");
+if($set!=1) { 
+print("Error: Please specify at least/only one flag at the same time !!!\n");
+             } else { print("\n") }
+    
+$code_bit==1&&print("Error: Invalid code number for -$l <code> set !!!\n\n")
+||print("\n");
+
+exit 1;
+}
+
+
+sub randip() {
+   $p1=int rand 255; $p2=int rand 255; $p3=int rand 255; $p4=int rand 255;
+   return $saddr=$p1.".".$p2.".".$p3.".".$p4;
+}
+

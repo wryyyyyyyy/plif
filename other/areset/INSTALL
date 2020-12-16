@@ -1,0 +1,11 @@
+Install:
+--------
+
+Library requirements:
+libnet : http://www.packetfactory.net/libnet
+libpcap: www.tcpdump.org
+
+Just type 'make && make install' to install aresetter and than fire it up :)
+
+
+Martin Kluge

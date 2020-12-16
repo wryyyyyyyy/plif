@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+
+$VERSION="1.00";
+
+getopts('c:', \%opt)||usage();
+if(defined($opt{'c'})) { $value=$opt{'c'} } else { usage() }
+if((length($value) ne "13") and (length($value) ne "12")) { $lenerr=1; usage() }
+
+for($i=0;$i<=10;$i++) {
+$A=$A+substr $value, $i, 1;
+$B=$B+substr $value, $i+1,1;
+$i++;
+}
+$B=$B*3;
+$result=($A+$B)%10;
+if($result>0) { $result=10-$result }
+print("\nChecksumme: $result\n\n");
+
+
+sub usage() {
+    print("\nABARCHECKSUM - Programmed by Anarchy\n");
+    print("====================================\n");
+    print("Usage: ABARCHECKSUM -c <EAN/UPC code>\n\n");
+$lenerr==1 && print("Error: Invalid code length !!!\n\n");
+    exit 0;
+}

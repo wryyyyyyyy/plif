@@ -1,0 +1,9 @@
+
+  Cardsize:    16052224 Byte
+  Free:        13315093 Byte
+  Cards:       2 inserted
+  Version:     1.13
+  Cardname:    
+  No. Samples: 1
+  Titles:
+    1.   2671595  Gerechtigkeit

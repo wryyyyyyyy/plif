@@ -1,0 +1,80 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+
+getopts('e:f:cqhop:s:r', \%opt)||usage();
+if(defined($opt{'e'})) { $expression=$opt{'e'} } else { usage() }
+if(defined($opt{'f'})) { $file=$opt{'f'}; $xcount++ }
+if(defined($opt{'p'})) { $file=$opt{'p'}; $xcount++ }
+if(defined($opt{'r'}) and defined($opt{'p'})) { $rprint=1 }
+if(defined($opt{'r'}) and !defined($opt{'p'})) { $rcount=1; usage() }
+if(defined($opt{'c'})) { $calc=1; $xcount++ }
+if(defined($opt{'s'})) { $string=$opt{'s'}; $xcount++ }
+if($xcount>1) { usage() }
+if(defined($opt{'q'})) { $quiet=1 }
+if(defined($opt{'h'})) { $hex=1; $count++ }
+if(defined($opt{'o'})) { $octal=1; $count++ }
+if($count==2) { usage() }
+
+if($calc==1) {
+$result=((eval $expression)||die("Error !!!\n"));
+if($hex==1) { $result=sprintf("%x", $result) }
+if($octal==1) { $result=sprintf("%o", $result) }
+$quiet!=1 && print("$result\n");
+}
+
+if(defined($opt{'f'}) or defined($opt{'p'})) {
+open(FILE, "<$file")||die("Error: Cannot open file for reading: $file !!!\n");
+@file=<FILE>;
+close FILE;
+if(defined($opt{'f'})) {
+open(FILE, ">$file")||die("Error: Cannot open file for writing: $file !!!\n");
+}
+for $line (@file) {
+$oldline=$line;
+eval("\$line=~$expression");
+if(defined($opt{'f'})) { print FILE $line }
+if(defined($opt{'p'} and $quiet!=1 )) {
+ if($rprint==1) {
+  if(($oldline ne $line) and $quiet!=1) { print $line }
+ } else { print $line } 
+}
+chomp $line;
+}
+close FILE;
+}
+
+if(defined($opt{'s'})) {
+$oldstring=$string;
+eval("\$string=~$expression");
+if($quiet==0) { print("$string\n") }
+}
+
+
+sub usage() {
+    $0=~s#.*/##g;
+    print("\nATOOL - Programmed by Anarchy\n");
+    print("=============================\n");
+    print("Usage  :  ATOOL -e '(regular) expression' [options]\n\n");
+    print("Options:  -c           calculates expression\n");
+    print("          -f <file>    use regular expression on <file>\n");
+    print("                       and change the <file>\n");
+    print("          -p <file>    use regular expression on <file>,\n");
+    print("                       but don't change the <file>,\n");
+    print("                       instead print result to STDOUT\n");
+    print("          -r           print only modified lines, only\n");
+    print("                       in combination with -p <file>\n");
+    print("          -s <string>  use regular expression on <string>\n");
+    print("                       and print <string> to STDOUT\n");
+    print("          -q           quiet mode\n");
+    print("          -h           print result in hexadecimal\n");
+    print("          -o           print result in octal\n\n");
+
+$xcount>1 && print("\nError: Please specify either -c, -p <file>,");
+$xcount>1 && print(" -f <file> or -s <string> !!!\n\n");
+$rcount==1 && print("Error: You can use -r only in");
+$rcount==1 && print(" combination with -p <file> !!!\n\n");
+$count==2 && print("\nError: Please specify either -h or -o !!!\n\n");
+
+    exit 0;
+}

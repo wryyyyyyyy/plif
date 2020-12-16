@@ -1,0 +1,19 @@
+
+                                AMP3 v0.01
+
+   By Martin Kluge
+   Homepage: http://www.elxsi.de
+   e-mail  : martin@elxsi.de
+   
+   Please use my public key (key.pub) to encrypt important emails !!!
+     -----------------------------------------------------------------
+   AMP3 will be a program to up-/download data files to your Grundig MP3
+   Player. Currently I only reverse engineered the communication protocol
+   and wrote some lines of code (this will NOT work at the moment!)
+     -----------------------------------------------------------------
+   
+   Have a look at the INSTALL file, if you don't know how to
+   install amp3.
+	 
+   Please report bugs/questions to martin@elxsi.de :)
+

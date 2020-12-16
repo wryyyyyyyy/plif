@@ -1,0 +1,105 @@
+dnl Process this file with autoconf to produce a configure script.
+dnl Martin Kluge
+AC_INIT(aresetter.c)
+
+
+dnl
+dnl Print program information
+dnl
+VER=`cat VERSION`
+AC_MSG_RESULT(Beginning autoconfiguration process for aresetter-$VER...)
+
+
+AM_INIT_AUTOMAKE(aresetter, 0.1)
+LIBS="$LIBS `libnet-config --libs`"
+
+dnl
+dnl Check compiler type
+dnl
+AC_PROG_CC
+
+dnl
+dnl Check compiler characteristics
+dnl
+AC_C_CONST
+
+
+dnl
+dnl Use these compiler flags if we have gcc.
+dnl
+if test $ac_cv_prog_gcc = yes; then
+dnl if test -z $CFLAGS; then
+    CCOPTS='-O2 -Wall `libnet-config --defines`'
+    CFLAGS="$CCOPTS"
+dnl fi
+fi
+
+dnl
+dnl Check for programs.
+dnl
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_CHECK_PROGS(LN, ln, @true)
+AC_CHECK_PROGS(LC, 'libnet-config', @true)
+
+dnl
+dnl Find ourselves some usable pcap headers.
+dnl
+AC_MSG_CHECKING(for a complete set of pcap headers)
+possible_dirs="`eval echo -n ${includedir}` \
+               /usr/include /usr/include/pcap \
+               /usr/local/include /usr/local/include/pcap \
+               /usr/share/include /usr/share/include/pcap"
+pcap_dir=""
+
+for dir in $possible_dirs ; do
+    if test -d $dir -a -r "$dir/pcap.h" -a \
+                       -r "$dir/net/bpf.h" ; then
+       if test -n "$pcap_dir" -a "$pcap_dir" != "$dir"; then
+          echo
+          echo; echo more than one set found in:
+          echo  $pcap_dir
+          echo  $dir
+          echo; echo please wipe out all unused pcap installations
+          exit
+      else
+          pcap_dir="$dir"
+      fi
+    fi
+done
+
+if test -z "$pcap_dir" ; then
+   echo no; echo couldn\'t find a complete set of pcap headers
+   exit
+else
+   echo found $pcap_dir
+
+   PCAP_INCLUDE="-I$pcap_dir"
+   PCAP_LINK="-L`dirname $pcap_dir`/lib"
+   AC_SUBST(PCAP_INCLUDE)
+   AC_SUBST(PCAP_LINK)
+   LIBS="$LIBS -lpcap"
+   AC_MSG_CHECKING(for usable bpf.h)
+   if test -n "`grep DLT_RAW $pcap_dir/net/bpf.h`" ; then
+      echo yep
+   else
+
+echo nope
+echo '***************************************************************'
+echo an important define is missing from the bpf.h I found.  this
+echo probably means that your installation of pcap is outdated and
+echo needs upgrading.  I\'ll go ahead and add the define for you but
+echo understand that matching certain types of packets may not
+echo function properly.
+echo '***************************************************************'
+sleep 3
+
+AC_DEFINE(DLT_RAW, 12)
+
+   fi
+fi
+   
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS(stdio.h netinet/in.h netinet/ip.h netinet/tcp.h pcap.h)
+AC_OUTPUT(Makefile)

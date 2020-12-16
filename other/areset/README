@@ -1,0 +1,18 @@
+
+				ARESETTER v0.1
+  
+  By Martin Kluge, 2001
+  Homepage: http://www.elxsi.de
+  e-mail  : martin@elxsi.de
+  Please use my public gpg key (key.pub) to encrypt important mails.
+    -----------------------------------------------------------------
+
+  ARESETTER is a simple program to reset network connections.
+  It works by sniffing the network traffic for three-way-handshakes
+  and by constructing TCP packets with the RST flag and the right
+  sequence number.
+
+  ARESETTER comes under the GPL (see COPYING for more details).
+    -----------------------------------------------------------------
+								Martin Kluge
+  

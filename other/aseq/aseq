@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+
+use Net::RawIP;
+use Getopt::Std;
+
+getopts('d:p:i:n:l:', \%opt)||usage();
+die usage() unless($ip=$opt{'d'});
+
+(!defined($opt{'p'})and($port=23))or($port=$opt{'p'});
+(!defined($opt{'i'})and($device="eth0"))or($device=$opt{'i'});
+(!defined($opt{'n'})and($count=0))or($count=$opt{'n'});
+if (defined($opt{'l'})) { $logfile=$opt{'l'} }
+if (defined($logfile)) {
+open(OUT,">$logfile") || die("\nError opening logfile file ($logfile) !!!\n\n");
+$|=1;
+}
+
+print("Looking for packets from $ip:$port\n\n");
+if (defined($logfile)) { print OUT "Looking for packets from $ip:$port\n\n"; }
+close(OUT);
+
+@flags=qw/URG ACK PSH RST SYN FIN/;
+$filter="src host $ip and src port $port";
+$psize=1500;
+$timeout=500;
+
+
+if(fork()){
+$a = new Net::RawIP;
+my $pcap = $a->pcapinit($device,$filter,$psize,$timeout);
+loop $pcap,$count,\&rc,\@a;
+}
+
+sub rc {
+
+if (defined($logfile)) {
+open(OUT,">>$logfile")||die("\nError opening logfile file ($logfile) !!!\n\n");}
+
+  $a->bset(substr( $_[2],14));
+  my @fl = $a->get({tcp=>
+                    [qw(seq psh syn fin rst urg ack)]
+                   });
+  $time=localtime(time);
+  print("$time# $ip:$port -> ");
+  $logfile && print OUT "$time# $ip:$port -> ";
+  for ($n=0;$n<=5;$n++) {
+    if ($fl[$n]+1 eq 1) {
+      print("$flags[$n] ");
+    $logfile && print OUT "$flags[$n] ";
+    }
+    else {
+      print("    ");
+    $logfile && print OUT "    ";
+   }
+  }
+  $fl[0]=sprintf("%lu",$fl[0]);
+  print(" with Seq ",$fl[0],"\n");
+  $logfile && print OUT " with Seq ",$fl[0],"\n";
+}
+
+sub usage() {
+  print("\nASEQ - Programed by Anarchy\n");
+  print("===========================\n");
+  print("Usage  :  ASEQ -d <destination ip> [options]\n\n");
+  print("Options:       -p <destination port>   (default=23)\n");
+  print("               -i <network device>     (default=eth0)\n");
+  print("               -n <number of packets   (default=0)\n");
+  print("                   to recieve>         (0=loop)\n\n");
+  print("               -l <log file>\n\n");
+  exit 1;
+}

