@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+
+getopts('f:l:po?h', \%opt)||die("Error: Incorrect command line options !!!\n");
+
+# Checking if anyone needs help... ;) 
+if(defined($opt{'?'}) || defined($opt{'h'})) { usage() }
+
+# ...checking if anyone specified -p and -o at the same time...;)
+if(defined($opt{'p'}) && defined($opt{'o'})) { $error=1; usage() }
+
+# Test if someone specified -f <file> and open it (perhabs...) ;)
+if(defined($opt{'f'})) {
+ $file=$opt{'f'};
+ open(FH, ">$file")||die("Error: Cannot open file $file for output !!!\n");
+ select(FH);
+}
+
+# Here we define the end round...
+$end_round=$opt{'l'}?$opt{'l'}:98304;
+
+# ...and here we calculate A{$n} and A_{$n} starting with A{6} and A_{6}...
+$n=6;
+$A{$n}=3/2*sqrt(3);
+$A_{$n}=2*sqrt(3);
+
+# ...now we start the loop from $A{6} to $A{$end_round}...
+for($n;$n<=$end_round-1;) {
+
+# Increment $count every time we make a new loop...;)
+$count++;
+$n*=2;
+
+
+# And here we calculate most of the shit...;)
+$A{$n}=sqrt($A{$n/2}*$A_{$n/2});
+$A_{$n}=(2*$A{$n}**2)/($A{$n}+$A{$n/2});
+$B=$A{$n};
+$B_=$A_{$n};
+
+# ...here we calculate pi...;)
+$pi=sqrt($A{$n}*$A_{$n});
+
+# So now we test if user specified -p ;) and if we run for the first time...
+if(defined($opt{'p'})) {
+ print("Round: $count\n");
+ print("A{$n}=$B\n");
+ print("A_{$n}=$B_\n");
+ print("PI=$pi\n\n");
+ $started=1;
+} elsif(defined($opt{'o'})) {
+   print("PI: $pi\n\n");
+   $started=1;
+  }
+
+}
+if($started!~/1/) { print("\nPI: $pi\n\n") }
+
+
+
+# Help sub... ;)
+sub usage() {
+    print("\nPI - Programmed by Anarchy\n");
+    print("==========================\n");
+    print("You may use this program under the terms of the GPL.\n");
+    print("Feel free to modify this code in any way you want.\n\n");
+    print("Usage  : CalcPI [options]\n");
+    print("Options:        -l <number of edges>   (default=98304)\n");
+    print(" "x16,"-p Print PI/A{$n}/A_{$n} every time we continue the loop\n");
+    print(" "x16,"-f <file> Like -p, but write output to <file>\n");
+    print(" "x16,"-o Display only PI every time we continue the loop\n");
+    print(" "x16,"   (do not combine with -p !!!)\n");
+    print("                -h or -? displays this help\n");
+ if($error=~/1/) {
+    print("\nError: You specified -p and -o at the same time !!!\n\n");
+ } else { print("\n") }    
+    exit 0;
+}    
+
+
+
+
+
+
