@@ -19,7 +19,7 @@ import ssl
 
 
 """
-# will be threaded or os.fork(ed) a bit later #
+# will be threaded or os.fork(ed) a bit later
 #def parent_child():
   #n = os.fork()
 
@@ -56,29 +56,29 @@ def sendmsg(chan , msg):
 
 def joinchan(chan):
   ircsock.send('JOIN ' + chan + 'n')
-  ircsock.send('PRIVMSG ' + channel + ' :Консолька, ищи ботов' + 'n') # onjoin message
+  ircsock.send('PRIVMSG ' + channel + ' :Консолька, ищи ботов' + 'n') #> onjoin message
 
-# def topic(chan):
-# tpc = [ircmsg] for items in tpc:
-# print(items)
-# ircsock.send("PRIVMSG "+ channel + " :"+ "" +"\n")
+#> def topic(chan):
+#> tpc = [ircmsg] for items in tpc:
+#> print(items)
+#> ircsock.send("PRIVMSG "+ channel + " :"+ "" +"\n")
 
 def wat():
-  ircsock.send('PRIVMSG ' + channel + ' :Да он же у вас однопоточный!' + 'n') # иногда даже работает
+  ircsock.send('PRIVMSG ' + channel + ' :Да он же у вас однопоточный!' + 'n') #> иногда даже работает
 
 def f_():
-  fh = open('u.txt') # улиточка в ASCII
+  fh = open('u.txt') # морская улиточка в ASCII
   for line in fh:
     #print(line.rstrip()) # можно смотреть в сосноль
     ircsock.send('NOTICE ' + channel + ' :' + line + 'n')
   fh.close()
   
-  ircsock.send('rn') # иногда не срабатывает
-		     ## улиточка. может дело в регэкспе,
-		     ### или сокету явно чего-то не хватает
+  ircsock.send('rn') #> иногда не срабатывает функция выше
+		     #> улиточка. может дело в регэкспе,
+		     #> или сокету явно чего-то не хватает
 
-# ============================================================================= #
-## try to connect ##
+#>============================================================================= >
+#>try to connect
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((server, port))
 ircsock = ssl.wrap_socket(s)
