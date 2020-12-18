@@ -19,7 +19,7 @@ import ssl
 
 
 """
-# will be threaded or fork() a bit later. maybe #
+# will be threaded or os.fork(ed) a bit later #
 #def parent_child():
   #n = os.fork()
 
@@ -44,7 +44,7 @@ botnick = 'YourBro'
 
 username = 'Not Your Bro'
 hostname = 'chat.freenode.net'
-servername = 'freenode.net'
+srvrname = 'freenode.net'
 realname = 'Cool Story Bro'
 
 
@@ -74,15 +74,15 @@ def f_():
   fh.close()
   
   ircsock.send('rn') # иногда не срабатывает
-		     # улиточка. или дело в регэкспе,
-		     # или сокету явно чего-то не хватает
+		     ## улиточка. может дело в регэкспе,
+		     ### или сокету явно чего-то не хватает
 
-# ================================================== #
+# ============================================================================= #
 ## try to connect ##
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((server, port))
 ircsock = ssl.wrap_socket(s)
-url = ('USER ' + username + ' ' + hostname +' '+ servername +' :'+ realname + 'n')
+url = ('USER ' + username + ' ' + hostname +' '+ srvrname +' :'+ realname + 'n')
 ircsock.send(bytes(url.encode()))
 url = ('NICK ' + botnick + 'n')
 ircsock.send(bytes(url.encode()))
@@ -92,15 +92,14 @@ while 1:
   ircmsg = ircmsg.strip('nr')
   print(ircmsg)
 
-  if(ircmsg.find('376')) != -1: # :END of /MOTD +
-    joinchan(channel)           # JOIN CHANNEL
-
+  if(ircmsg.find('376')) != -1: # :END of /MOTD + JOIN CHANNEL
+  #joinchan(channel)
 
   if(ircmsg.find(':xzibit:')) != -1:
     wat()
 
 
-  if(ircmsg.find(':Майор, улиточку')) != -1:
+  if(ircmsg.find(':Майор, улиточку')) != -1: # 
     f_()
 
 
@@ -108,4 +107,4 @@ while 1:
     ping()
 
 
-### EOF ###
+# EOF
