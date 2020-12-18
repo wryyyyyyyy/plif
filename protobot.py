@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 
@@ -19,6 +19,7 @@ import ssl
 
 
 """
+# will be threaded or fork() a bit later. maybe #
 #def parent_child():
   #n = os.fork()
 
@@ -55,7 +56,7 @@ def sendmsg(chan , msg):
 
 def joinchan(chan):
   ircsock.send('JOIN ' + chan + 'n')
-  ircsock.send('PRIVMSG ' + channel + ' :Консолька, ищи ботов' + 'n')
+  ircsock.send('PRIVMSG ' + channel + ' :Консолька, ищи ботов' + 'n') # onjoin message
 
 # def topic(chan):
 # tpc = [ircmsg] for items in tpc:
@@ -63,15 +64,18 @@ def joinchan(chan):
 # ircsock.send("PRIVMSG "+ channel + " :"+ "" +"\n")
 
 def wat():
-  ircsock.send('PRIVMSG ' + channel + ' :Да он же у вас однопоточный!\n')
+  ircsock.send('PRIVMSG ' + channel + ' :Да он же у вас однопоточный!' + 'n') # иногда даже работает
 
 def f_():
-  fh = open('u.txt')
+  fh = open('u.txt') # улиточка в ASCII
   for line in fh:
-    #print(line.rstrip())
+    #print(line.rstrip()) # можно смотреть в сосноль
     ircsock.send('NOTICE ' + channel + ' :' + line + 'n')
   fh.close()
-  #print("OK")
+  
+  ircsock.send('rn') # иногда не срабатывает
+		     # улиточка. или дело в регэкспе,
+		     # или сокету явно чего-то не хватает
 
 # ================================================== #
 ## try to connect ##
@@ -96,11 +100,12 @@ while 1:
     wat()
 
 
-  if(ircmsg.find(':Майор, улиточку')):
+  if(ircmsg.find(':Майор, улиточку')) != -1:
     f_()
 
 
   if(ircmsg.find('PING :')) != -1:
     ping()
+
 
 ### EOF ###
