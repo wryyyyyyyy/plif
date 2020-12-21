@@ -1,4 +1,7 @@
 #!/bin/perl
+###########
+
+use strict;
 
 my @iface = (`ip address show` =~ /(.*?)\:\s*(.*?)\:\s*\<BROADCAST(.*?)/g);
 print "INTERFACE:\t".$2."\n"; # valid iface
