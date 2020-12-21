@@ -17,7 +17,7 @@ import ssl
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#warbot"
+channel = "#chlor"
 botnick = "protobot_"
 buf = ""
 
@@ -25,9 +25,11 @@ s = socket.socket()
 s.connect((server, port))
 ssock = ssl.wrap_socket(s)
 
+t0 = int(time.time()) # start timesamp
 ssock.send(bytes("NICK %s\r\n" % botnick, "UTF-8"))
 ssock.send(bytes("USER %s %s blah :%s\r\n" % (botnick, server, botnick), "UTF-8"))
 
+# included
 ul = '''
 я — морская   @             _________
 улиточка       \____       /         \
@@ -40,16 +42,10 @@ ul = '''
 '''
 
 def major():
-  #print(ul)
-  #ssock.send(bytes("PRIVMSG %s :%s\n" % (channel, ul), "UTF-8"))
   fh = open('u.txt')
   for line in fh:
-    ssock.send(bytes("PRIVMSG %s :%s\n" % (channel, line), "UTF-8"))
+    ssock.send(bytes("NOTICE %s :%s\n" % (channel, line), "UTF-8"))
   fh.close()
-  cooldown() # some antiflood routine shall be implemented here
-
-def cooldown():
-  time.sleep(5)
 
 while 1:
   buf = buf+ssock.recv(1024).decode("UTF-8")
@@ -69,4 +65,10 @@ while 1:
 
   out = str(tmp)
   if(out.find("Майор, улиточку")) != -1:
-    major()
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:
+      major()
+      t0 = t1
+
+  if(out.find("!die")) != -1:
+    ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
