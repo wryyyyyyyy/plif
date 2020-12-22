@@ -89,7 +89,7 @@ def iss():
 
 ### HELPME ###
 def helpme():
-  out = "`help | `starttime | `bottime | `xkcd | `iss | Майор, улиточку | `botcode | `die"
+  out = "`help | `starttime | `bottime | `xkcd | `iss | [М,м]айор, улиточку | `botcode | `die"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
 
@@ -131,19 +131,28 @@ while 1:
 
 ### STARTTIME ###
   if(out.find("`starttime")) != -1:
-    rt = datetime.fromtimestamp(t0)
-    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      rt = datetime.fromtimestamp(t0)
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
+      t0 = t1
 
 ### BOTTIME ###
   if(out.find("`bottime")) != -1:
-    tt = int(time.time())
-    rt = datetime.fromtimestamp(tt)
-    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      tt = int(time.time())
+      rt = datetime.fromtimestamp(tt)
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
+      t0 = t1
 
 ### BOTCODE ###
   if(out.find("`botcode")) != -1:
-    url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
-    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
+      t0 = t1
 
 ### SHUTDOWN ###
   if(out.find("`die")) != -1:
@@ -166,4 +175,7 @@ while 1:
 
 ### HELPME ###
   if(out.find("`help")) != -1:
-    helpme()
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      helpme()
+      t0 = t1
