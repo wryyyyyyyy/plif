@@ -21,7 +21,7 @@ import json
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#chlor"
+channel = "#warbot"
 botnick = "protobot_"
 buf = ""
 
@@ -147,8 +147,8 @@ while 1:
 
 ### SHUTDOWN ###
   if(out.find("`die")) != -1:
-    #ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
-    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
+    ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
+    #ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
 
 ### XKCD ###
   if(out.find("`xkcd")) != -1:
