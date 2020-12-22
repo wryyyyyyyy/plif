@@ -49,12 +49,6 @@ ul = ('''
 
 ### УЛИТОЧКА ###
 def major():
-  fh = open('u.txt')
-  for line in fh:
-    ssock.send(bytes("NOTICE %s :%s\n" % (channel, str(line)), "UTF-8"))
-  fh.close()
-
-def ulitka():
   for line in ul.splitlines():
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, line), "UTF-8"))
 
@@ -95,8 +89,9 @@ def iss():
 
 ### HELPME ###
 def helpme():
-  out = "!help | !starttime | !bottime | !xkcd | !iss | Майор, улиточку | !botcode | !die"
+  out = "`help | `starttime | `bottime | `xkcd | `iss | Майор, улиточку | `botcode | `die"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
+
 
 
 ### MAIN LOOP ###
@@ -116,54 +111,59 @@ while 1:
       ssock.send(bytes("JOIN %s\r\n" % channel, "UTF-8"))
 
     if(line[1] == "366"): # End of /NAMES
-      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Feel free to !help yourself"), "UTF-8"))
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Feel free to `help yourself"), "UTF-8"))
 
     if(line[0] == "PING"): # KIM CHEN PONG d[^__|__^]b
       ssock.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
 
 ### УЛИТОЧКА ###
   out = str(tmp)
-  if(out.find("Майор, улиточку")) or (out.find("майор, улиточку")) != -1:
+  if(out.find("Майор, улиточку")) != -1: #) or
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
-      #major()
-      ulitka()
+      major()
+      t0 = t1
+  elif(out.find("майор, улиточку")) != -1:
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      major()
       t0 = t1
 
-### BOT STARTTIME ###
-  if(out.find("!starttime")) != -1:
+### STARTTIME ###
+  if(out.find("`starttime")) != -1:
     rt = datetime.fromtimestamp(t0)
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
 
-### BOT BOTTIME ###
-  if(out.find("!bottime")) != -1:
+### BOTTIME ###
+  if(out.find("`bottime")) != -1:
     tt = int(time.time())
     rt = datetime.fromtimestamp(tt)
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
 
-  if(out.find("!botcode")) != -1:
+### BOTCODE ###
+  if(out.find("`botcode")) != -1:
     url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
 
-### BOT SHUTDOWN ###
-  if(out.find("!die")) != -1:
+### SHUTDOWN ###
+  if(out.find("`die")) != -1:
     #ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
 
 ### XKCD ###
-  if(out.find("!xkcd")) != -1:
+  if(out.find("`xkcd")) != -1:
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
       xkcd()
       t0 = t1
 
 ### ISS TRACKER ### TOP SECRET ### USING FOR KGB AGENTS ONLY ###
-  if(out.find("!iss")) != -1:
+  if(out.find("`iss")) != -1:
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
       iss()
       t0 = t1
 
 ### HELPME ###
-  if(out.find("!help")) != -1:
+  if(out.find("`help")) != -1:
     helpme()
