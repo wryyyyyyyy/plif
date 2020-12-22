@@ -21,7 +21,7 @@ import json
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#warbot"
+channel = "#chlor"
 botnick = "protobot_"
 buf = ""
 
@@ -36,26 +36,25 @@ ssock.send(bytes("NICK %s\r\n" % botnick, "UTF-8"))
 ssock.send(bytes("USER %s %s blah :%s\r\n" % (botnick, server, botnick), "UTF-8"))
 
 # included
-ul = '''
+ul = ('''
 я — морская   @             _________
-улиточка       \____       /         \
-        \      /    \     /   ____    \
-               \_    \   /   /    \    \
+улиточка       \____       /         \\
+        \      /    \     /   ____    \\
+               \_    \   /   /    \    \\
                  \    \ (    \__/  )    )
                   \    \_\ \______/    /
                    \      \           /___
                     \______\_________/____-_
-'''
+''')
 
 ### УЛИТОЧКА ###
 def major():
   fh = open('u.txt')
   for line in fh:
-    ssock.send(bytes("NOTICE %s :%s\n" % (channel, line), "UTF-8"))
+    ssock.send(bytes("NOTICE %s :%s\n" % (channel, str(line)), "UTF-8"))
   fh.close()
 
 def ulitka():
-  out = ""
   for line in ul.splitlines():
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, line), "UTF-8"))
 
@@ -124,7 +123,7 @@ while 1:
 
 ### УЛИТОЧКА ###
   out = str(tmp)
-  if(out.find("Майор, улиточку")) != -1:
+  if(out.find("Майор, улиточку")) or (out.find("майор, улиточку")) != -1:
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
       #major()
