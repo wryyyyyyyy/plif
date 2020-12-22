@@ -54,6 +54,9 @@ def major():
     ssock.send(bytes("NOTICE %s :%s\n" % (channel, line), "UTF-8"))
   fh.close()
 
+def ulitka():
+   ssock.send("NOTICE {} :{}\n".format(channel, l).encode('utf-8')[:512]) for l in ul.splitlines()
+
 ### XKCD ###
 def xkcd():
   url = "https://xkcd.com/rss.xml"
@@ -91,7 +94,7 @@ def iss():
 
 ### HELPME ###
 def helpme():
-  out = "!help | !starttime | !bottime | !xkcd | !iss | Майор, улиточку | !die"
+  out = "!help | !starttime | !bottime | !xkcd | !iss | Майор, улиточку | !botcode | !die"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
 
@@ -122,7 +125,8 @@ while 1:
   if(out.find("Майор, улиточку")) != -1:
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
-      major()
+      #major()
+      ulitka()
       t0 = t1
 
 ### BOT STARTTIME ###
@@ -136,9 +140,14 @@ while 1:
     rt = datetime.fromtimestamp(tt)
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
 
+  if(out.find("!botcode")) != -1:
+    url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
+
 ### BOT SHUTDOWN ###
   if(out.find("!die")) != -1:
-    ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
+    #ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
 
 ### XKCD ###
   if(out.find("!xkcd")) != -1:
