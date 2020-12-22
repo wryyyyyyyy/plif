@@ -15,6 +15,8 @@ import requests
 import time
 import ssl
 import xml.etree.ElementTree as et
+import json
+from datetime import datetime
 
 ## vars ##
 server = "chat.freenode.net"
@@ -43,12 +45,14 @@ ul = '''
                     \______\_________/____-_
 '''
 
+### УЛИТОЧКА ###
 def major():
   fh = open('u.txt')
   for line in fh:
     ssock.send(bytes("NOTICE %s :%s\n" % (channel, line), "UTF-8"))
   fh.close()
 
+### XLCD ###
 def xkcd():
   url = "https://xkcd.com/rss.xml"
   res = requests.get(url)
@@ -67,6 +71,23 @@ def xkcd():
     if j < l-1:
       out = out + cnt[j+1].text
     ssock.send(bytes("NOTICE %s :%s\n" % (channel, out), "UTF-8"))
+
+### ISS TRACKER ###
+def iss():
+  url = "http://api.open-notify.org/iss-now.json"
+  res = requests.get(url)
+  cnt = (res.content).decode("UTF-8")
+  v = json.loads(cnt)
+  t = v['timestamp'] # TIME
+  c = json.dumps(v['iss_position'],0)
+  v = json.loads(c)
+  lat = v['latitude']
+  lng = v['longitude']
+  rt = datetime.fromtimestamp(t)
+  out = "Latitude:\t" + str(lat) + " | " + "Longitude:\t" + str(lng) + " | " + "Timestamp:\t" + str(rt) + "\n"
+  ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
+
+
 
 ### MAIN LOOP ###
 while 1:
@@ -104,4 +125,11 @@ while 1:
     t1 = int(time.time()) # prevent flood
     if(t1 - t0) > 5:      # cooldown 5 sec.
       xkcd()
+      t0 = t1
+
+### ISS TRACKER ### TOP SECRET ### USING FOR KGB AGENTS ONLY ###
+  if(out.find("!iss")) != -1:
+    t1 = int(time.time()) # prevent flood
+    if(t1 - t0) > 5:      # cooldown 5 sec.
+      iss()
       t0 = t1
