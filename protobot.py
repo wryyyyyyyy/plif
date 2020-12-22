@@ -15,20 +15,22 @@ import requests
 import time
 import ssl
 import xml.etree.ElementTree as et
-import json
 from datetime import datetime
+import json
 
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#warbot"
+channel = "#chlor"
 botnick = "protobot_"
 buf = ""
 
+## defs ##
 s = socket.socket()
 s.connect((server, port))
 ssock = ssl.wrap_socket(s)
 
+## connect ##
 t0 = int(time.time()) # start timesamp
 ssock.send(bytes("NICK %s\r\n" % botnick, "UTF-8"))
 ssock.send(bytes("USER %s %s blah :%s\r\n" % (botnick, server, botnick), "UTF-8"))
@@ -87,6 +89,11 @@ def iss():
   out = "Latitude:\t" + str(lat) + " | " + "Longitude:\t" + str(lng) + " | " + "Timestamp:\t" + str(rt) + "\n"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
+### HELPME ###
+def helpme():
+  out = "!help | !starttime | !bottime | !xkcd | !iss | Майор, улиточку | !die"
+  ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
+
 
 ### MAIN LOOP ###
 while 1:
@@ -104,6 +111,9 @@ while 1:
     if(line[1] == "376"): # END OF /MOTD
       ssock.send(bytes("JOIN %s\r\n" % channel, "UTF-8"))
 
+    if(line[1] == "366"): # End of /NAMES
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Feel free to !help yourself"), "UTF-8"))
+
     if(line[0] == "PING"): # KIM CHEN PONG d[^__|__^]b
       ssock.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
 
@@ -116,12 +126,12 @@ while 1:
       t0 = t1
 
 ### BOT STARTTIME ###
-  if(out.find("!up")) != -1:
+  if(out.find("!starttime")) != -1:
     rt = datetime.fromtimestamp(t0)
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
 
-### BOT TIMENOW ###
-  if(out.find("!now")) != -1:
+### BOT BOTTIME ###
+  if(out.find("!bottime")) != -1:
     tt = int(time.time())
     rt = datetime.fromtimestamp(tt)
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
@@ -143,3 +153,7 @@ while 1:
     if(t1 - t0) > 5:      # cooldown 5 sec.
       iss()
       t0 = t1
+
+### HELPME ###
+  if(out.find("!help")) != -1:
+    helpme()
