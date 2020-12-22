@@ -21,7 +21,7 @@ import json
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#chlor"
+channel = "#warbot"
 botnick = "protobot_"
 buf = ""
 
@@ -55,7 +55,9 @@ def major():
   fh.close()
 
 def ulitka():
-   ssock.send("NOTICE {} :{}\n".format(channel, l).encode('utf-8')[:512]) for l in ul.splitlines()
+  out = ""
+  for line in ul.splitlines():
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, line), "UTF-8"))
 
 ### XKCD ###
 def xkcd():
