@@ -52,7 +52,7 @@ def major():
     ssock.send(bytes("NOTICE %s :%s\n" % (channel, line), "UTF-8"))
   fh.close()
 
-### XLCD ###
+### XKCD ###
 def xkcd():
   url = "https://xkcd.com/rss.xml"
   res = requests.get(url)
@@ -88,7 +88,6 @@ def iss():
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
 
-
 ### MAIN LOOP ###
 while 1:
 ### RECIEVE ###
@@ -115,6 +114,17 @@ while 1:
     if(t1 - t0) > 5:      # cooldown 5 sec.
       major()
       t0 = t1
+
+### BOT STARTTIME ###
+  if(out.find("!up")) != -1:
+    rt = datetime.fromtimestamp(t0)
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
+
+### BOT TIMENOW ###
+  if(out.find("!now")) != -1:
+    tt = int(time.time())
+    rt = datetime.fromtimestamp(tt)
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
 
 ### BOT SHUTDOWN ###
   if(out.find("!die")) != -1:
