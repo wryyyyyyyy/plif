@@ -21,7 +21,7 @@ import json
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#warbot"
+channel = "#chlor"
 botnick = "protobot_"
 buf = ""
 
@@ -74,6 +74,35 @@ def xkcd():
       out = out + cnt[j+1].text
     ssock.send(bytes("NOTICE %s :%s\n" % (channel, out), "UTF-8"))
 
+### HABR ###
+## get link ##
+def pguid(_tmp,tit,tree):
+  _wtf = tit
+  _wtp = _tmp
+  for _i in tree.iter(tag = 'guid'):
+    #for each in _i:
+    if(_wtp == _tmp):
+      lnk = tit + _i.text
+  #print(lnk)
+  for line in lnk.splitlines():
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, line[:512]), "UTF-8"))
+
+## get title ##
+def ptitle(tree):
+  _tmp = 0
+  for _j in tree.iter(tag='title'):
+    if(_tmp == _tmp):
+      tit = _j.text + " | "
+      pguid(_tmp,tit,tree)
+      _tmp = _tmp + 1
+
+### HABR MAIN ###
+def habr():
+  url = "https://habr.com/en/rss/all/all/?fl=ru"
+  res = requests.get(url)
+  tree = et.fromstring(res.content)
+  ptitle(tree)
+
 ### ISS TRACKER ###
 def iss():
   url = "http://api.open-notify.org/iss-now.json"
@@ -91,7 +120,7 @@ def iss():
 
 ### HELPME ###
 def helpme():
-  out = "`help | `starttime | `utctime | `xkcd | `iss | [М,м]айор, улиточку | `botcode | `die"
+  out = "`help | `starttime | `utctime | `xkcd | `habr | `iss | [М,м]айор, улиточку | `botcode | `die"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
 
@@ -177,8 +206,8 @@ while 1:
 
 ### SHUTDOWN ###
   if(out.find("`die")) != -1:
-    ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
-    #ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
+    #ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
     quit() # Quit programm
 
 ### XKCD ###
@@ -186,6 +215,13 @@ while 1:
     _now = int(time.time())
     if(_now > _stt + kd):
       xkcd()
+      _stt = _now
+
+### HABR ###
+  if(out.find("`habr")) != -1:
+    _now = int(time.time())
+    if(_now > _stt + kd):
+      habr()
       _stt = _now
 
 ### ISS TRACKER ### TOP SECRET ### USING FOR KGB AGENTS ONLY ###
