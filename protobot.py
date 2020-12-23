@@ -31,9 +31,11 @@ s.connect((server, port))
 ssock = ssl.wrap_socket(s)
 
 ## connect ##
-t0 = int(time.time()) # start timesamp
+_st = int(time.time())  # start time
+_stt = _st
+kd = 5                  # cooldown
 ssock.send(bytes("NICK %s\r\n" % botnick, "UTF-8"))
-ssock.send(bytes("USER %s %s blah :%s\r\n" % (botnick, server, botnick), "UTF-8"))
+ssock.send(bytes("USER %s %s %s :%s\r\n" % (botnick, botnick, server, botnick), "UTF-8"))
 
 # included
 ul = ('''
@@ -89,7 +91,7 @@ def iss():
 
 ### HELPME ###
 def helpme():
-  out = "`help | `starttime | `bottime | `xkcd | `iss | [М,м]айор, улиточку | `botcode | `die"
+  out = "`help | `starttime | `utctime | `xkcd | `iss | [М,м]айор, улиточку | `botcode | `die"
   ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
 
@@ -119,63 +121,83 @@ while 1:
 ### УЛИТОЧКА ###
   out = str(tmp)
   if(out.find("Майор, улиточку")) != -1: #) or
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       major()
-      t0 = t1
+      _stt = _now
   elif(out.find("майор, улиточку")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       major()
-      t0 = t1
+      _stt = _now
 
 ### STARTTIME ###
   if(out.find("`starttime")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
-      rt = datetime.fromtimestamp(t0)
-      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t" + str(rt)), "UTF-8"))
-      t0 = t1
+    _now = int(time.time())
+    _u = datetime.utcfromtimestamp(_st)
+    if(_now > _stt + kd):
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Bot online since:\t"+str(_u)), "UTF-8"))
+      _stt = _now
 
 ### BOTTIME ###
-  if(out.find("`bottime")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
-      tt = int(time.time())
-      rt = datetime.fromtimestamp(tt)
-      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Current bot time:\t" + str(rt)), "UTF-8"))
-      t0 = t1
+  if(out.find("`utctime")) != -1:
+    _now = int(time.time())
+    _u = datetime.fromtimestamp(_now)
+    _utc = datetime.utcnow() # UTC datetime now
+    _n = _utc.timestamp() # from _utc
+
+    _nyc = _n-5*60*60
+    _nyc = datetime.fromtimestamp(int(_nyc))
+    _lnd = _n+0*60*60
+    _lnd = datetime.fromtimestamp(int(_n))
+    _prs = _n+1*60*60
+    _prs = datetime.fromtimestamp(int(_prs))
+    _msc = _n+3*60*60
+    _msc = datetime.fromtimestamp(int(_msc))
+    _pek = _n+8*60*60
+    _pek = datetime.fromtimestamp(int(_pek))
+    _tok = _n+9*60*60
+    _tok = datetime.fromtimestamp(int(_tok))
+    _laa = _n+16*60*60
+    _laa = datetime.fromtimestamp(int(_laa))
+
+    _ts =  "Current UTC time: "+_utc.strftime("%H:%M:%S")+" | NYC: "+_nyc.strftime("%H:%M")+" | London: "+_lnd.strftime("%H:%M")+" | Paris: "+_prs.strftime("%H:%M")+" | Moscow: "+_msc.strftime("%H:%M")+" | Peking: "+_pek.strftime("%H:%M")+" | Tokyo: "+_tok.strftime("%H:%M")+" | LA: "+_laa.strftime("%H:%M")
+
+    if(_now > _stt + kd):
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, _ts), "UTF-8"))
+      _stt = _now
 
 ### BOTCODE ###
   if(out.find("`botcode")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
       ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
-      t0 = t1
+      _stt = _now
 
 ### SHUTDOWN ###
   if(out.find("`die")) != -1:
     ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
     #ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
+    quit() # Quit programm
 
 ### XKCD ###
   if(out.find("`xkcd")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       xkcd()
-      t0 = t1
+      _stt = _now
 
 ### ISS TRACKER ### TOP SECRET ### USING FOR KGB AGENTS ONLY ###
   if(out.find("`iss")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       iss()
-      t0 = t1
+      _stt = _now
 
 ### HELPME ###
   if(out.find("`help")) != -1:
-    t1 = int(time.time()) # prevent flood
-    if(t1 - t0) > 5:      # cooldown 5 sec.
+    _now = int(time.time())
+    if(_now > _stt + kd):
       helpme()
-      t0 = t1
+      _stt = _now
