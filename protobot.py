@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """
-
     ============
     PrototypeBot
     ============
@@ -14,14 +13,15 @@ import socket
 import requests
 import time
 import ssl
+import re
+import json
 import xml.etree.ElementTree as et
 from datetime import datetime
-import json
 
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#chlor"
+channel = "#s2ch"
 botnick = "protobot_"
 buf = ""
 
@@ -72,36 +72,78 @@ def xkcd():
     cnt = tree.findall('.//link')
     if j < l-1:
       out = out + cnt[j+1].text
-    ssock.send(bytes("NOTICE %s :%s\n" % (channel, out), "UTF-8"))
+    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, out), "UTF-8"))
 
-### HABR ###
-## get link ##
-def pguid(_tmp,tit,tree):
-  _wtf = tit
-  _wtp = _tmp
-  for _i in tree.iter(tag = 'guid'):
-    #for each in _i:
-    if(_wtp == _tmp):
-      lnk = tit + _i.text
-  #print(lnk)
-  for line in lnk.splitlines():
-    ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, line[:512]), "UTF-8"))
+######### HABR #########
+def tcount():
+  for node in tree.iter('title'):
+    title = node.attrib.get('text')
+    _t.append(node)
+  return(_t)
 
-## get title ##
-def ptitle(tree):
-  _tmp = 0
-  for _j in tree.iter(tag='title'):
-    if(_tmp == _tmp):
-      tit = _j.text + " | "
-      pguid(_tmp,tit,tree)
-      _tmp = _tmp + 1
+def lcount():
+  for node in tree.iter('guid'):
+    guid = node.attrib.get('text')
+    _l.append(node)
+  return(_l)
 
-### HABR MAIN ###
+
+def dcount():
+  for node in tree.iter('pubDate'):
+    pdate = node.attrib.get('text')
+    _d.append(node)
+  return(_d)
+
+
+def rcount():
+  for node in tree.iter('description'):
+    desc = node.attrib.get('text')
+    _r.append(node)
+  return(_r)
+
+def core(tree):
+  _x = 0
+  _dbt = []
+  _dbl = []
+  _dbd = []
+  _dbr = []
+  _data = {'Title':'','Date':'','Link':'','Desc':''}
+
+  for t in tree.iter(tag = 'title'): # going throw titles
+    _dbt.append(t.text)
+
+    for l in tree.iter(tag = 'guid'): # going throw permlinks
+      _dbl.append(l.text)
+
+      for d in tree.iter(tag = 'pubDate'): # going throw date
+        _dbd.append(d.text)
+
+        for r in tree.iter(tag = 'description'): # going throw texts
+          _dbr.append(r.text)
+
+  _lt = len(_dbt) # get array length
+
+  for t in tree.iter(tag = 'title'):
+    if(_x+2 < _lt - 2):
+      _out = _dbt[_x+2]+' | '+_dbl[_x]+' | '+_dbd[_x]
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, _out), "UTF-8"))
+      _x = _x + 1
+      time.sleep(1)
+    else:
+      break
+
+## init ##
 def habr():
-  url = "https://habr.com/en/rss/all/all/?fl=ru"
+  url = "https://habr.com/ru/rss/all/?fl=ru"
   res = requests.get(url)
   tree = et.fromstring(res.content)
-  ptitle(tree)
+
+  _t = []
+  _l = []
+  _d = []
+  _r = []
+  core(tree)
+####################
 
 ### ISS TRACKER ###
 def iss():
@@ -208,7 +250,7 @@ while 1:
   if(out.find("`die")) != -1:
     #ssock.send(bytes("QUIT :Killed by services\r\n", "UTF-8"))
     ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Will be enabled soon :3"), "UTF-8"))
-    quit() # Quit programm
+    #quit() # Quit programm
 
 ### XKCD ###
   if(out.find("`xkcd")) != -1:
