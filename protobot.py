@@ -21,7 +21,7 @@ from datetime import datetime
 ## vars ##
 server = "chat.freenode.net"
 port = 6697
-channel = "#s2ch"
+channel = "#warbot"
 botnick = "protobot_"
 buf = ""
 
@@ -184,7 +184,7 @@ while 1:
       ssock.send(bytes("JOIN %s\r\n" % channel, "UTF-8"))
 
     if(line[1] == "366"): # End of /NAMES
-      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Feel free to `help yourself"), "UTF-8"))
+      ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, "Feel free to type `help | Botcode available at: https://t1p.de/ix4u"), "UTF-8"))
 
     if(line[0] == "PING"): # KIM CHEN PONG d[^__|__^]b
       ssock.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
@@ -242,7 +242,7 @@ while 1:
   if(out.find("`botcode")) != -1:
     _now = int(time.time())
     if(_now > _stt + kd):
-      url = "https://github.com/wryyyyyyyy/plif/blob/main/protobot.py"
+      url = "https://t1p.de/ix4u"
       ssock.send(bytes("NOTICE %s :%s\r\n" % (channel, url), "UTF-8"))
       _stt = _now
 
